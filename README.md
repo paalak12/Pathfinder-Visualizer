@@ -1,135 +1,113 @@
 # 🗺️ Pathfinder Visualizer
 
-A real-world Dijkstra pathfinding visualizer built with **Raylib** and **C++**, using street network data from **OpenStreetMap** via `osmnx`.
+A real-world pathfinding visualizer built with **C++** and **Raylib**, using live street network data from **OpenStreetMap** of Jaipur, India.
 
-It allows interactive visualization of road networks, selection of custom start and end points, and renders the shortest path using Dijkstra’s algorithm.
+Implements and compares **Dijkstra's Algorithm** and **A\*** side-by-side with interactive visualization.
 
 ---
-## 🖼️ Preview
 
-![Pathfinder Demo](screenshots/demo.png)
+## 📸 Demo
 
+![Demo](screenshots/demo.png)
+
+---
 
 ## ✨ Features
 
-- 🛰️ **Real Map Data**: Automatically fetched via `osmnx` API from OpenStreetMap  
-- 🎮 **Raylib UI**: Smooth pan, zoom, and mouse interaction  
-- 🖱️ **Custom Start & End Nodes**: User can select source and destination interactively  
-- 🔴 **Node Visualization**: All graph nodes are rendered as red dots  
-- 📍 **Shortest Path Rendering**: Highlights the optimal route using Dijkstra  
-- 📦 **Modular C++ Design**: Easy to extend with new features or algorithms  
+- 🛰️ **Real Map Data** — Road network fetched from OpenStreetMap using `osmnx`
+- 🖱️ **Click to Select** — Click directly on the map to set start and end points
+- ⚡ **Dijkstra vs A\*** — Both algorithms run simultaneously on the same path
+- 🔁 **Toggle Algorithms** — Press `SPACE` to switch between Dijkstra and A\*
+- 📊 **Live Stats Panel** — Shows distance, nodes explored, and time taken
+- 🎨 **Color Coded** — Dijkstra in Orange, A\* in Blue
+- 🔄 **Reset** — Press `R` to clear and pick new points
+
+---
+
+## 📊 Algorithm Comparison
+
+| | Dijkstra | A\* |
+|---|---|---|
+| Strategy | Explores all directions equally | Guided by heuristic toward destination |
+| Nodes Explored | More | Fewer (~24% less) |
+| Path Quality | Optimal | Optimal |
+| Speed | Slower | Faster |
+
+A\* uses the **Haversine formula** as its heuristic — the real-world straight-line distance between two GPS coordinates.
 
 ---
 
 ## 🛠️ Setup
 
-### 1. Python Dependencies
-
-To generate the map and graph files, install the following Python packages:
-
+### 1. Install Python dependencies
 ```bash
 pip install osmnx matplotlib pillow
 ```
 
-### 2. Generate the Map Data
-
-To alter the location of the map, open `map_loader.py` and change the latitude and longitude values.
-
-Then, run the following command inside the `src` folder:
-
+### 2. Generate map data
 ```bash
-python3 map_loader.py
+cd src
+python map_loader.py
 ```
 
-This will generate the following files inside a `maps/` folder:
+This generates `maps/map.png`, `maps/map_bounds.json`, `maps/map_graph.json`.
 
-```
-maps/
-├── map.png
-├── map_bounds.json
-└── map_graph.json
-```
-
-These are required by the C++ visualizer.
-
----
-
-### 3. Compile the C++ Files
-
-Make sure you have the following installed:
-
-#### ✅ Requirements:
-- A C++17-compatible compiler (e.g. `g++`)
-- [`raylib`](https://www.raylib.com/) (graphics & input library)
-- [`nlohmann/json`](https://github.com/nlohmann/json) (for JSON parsing)
-
-#### 🧱 Compile with `g++` (Windows/Linux example):
-
+### 3. Compile
 ```bash
-g++ src/main.cpp -o app \
--Idependencies/include \
--Ldependencies/lib -lraylib \
--lGL -lm -lpthread -ldl -lrt -lX11
+g++ src/main.cpp -o app -Idependencies/include -Ldependencies/lib -lraylib -lopengl32 -lgdi32 -lwinmm
 ```
 
-> 💡 On macOS, replace `-lGL` and `-lX11` with:  
-> `-framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo`
-
----
-
-### 4. Run the Visualizer
-
-After compiling and generating the map data:
-
+### 4. Run
 ```bash
-./app
+app.exe
 ```
 
 ---
 
 ## 🎮 Controls
 
-| Action                   | Input                    |
-|--------------------------|--------------------------|
-| Zoom in/out              | Mouse Wheel              |
-| Pan map                  | Right Mouse Drag         |
-| Print cursor coordinates | Left Click (console)     |
-| Select nodes (planned)   | Click start/end locations |
+| Action | Input |
+|---|---|
+| Set start point | Left click |
+| Set end point | Left click |
+| Toggle Dijkstra / A\* | SPACE |
+| Reset | R |
+| Zoom | Mouse wheel |
+| Pan | Right mouse drag |
 
 ---
 
 ## 📦 Project Structure
 
-| File               | Description                                |
-|--------------------|--------------------------------------------|
-| `main.cpp`         | App entry point + main loop                |
-| `graph.hpp/.cpp`   | Loads graph structure from JSON            |
-| `projector.hpp`    | Maps lat/lon to screen coordinates         |
-| `renderer.hpp`     | Handles texture rendering, pan, zoom       |
-| `pathfinder.hpp`   | Dijkstra implementation                    |
-| `map_loader.py`    | Python script to fetch and export map data |
+| File | Description |
+|---|---|
+| `src/main.cpp` | App entry point, click handling, render loop |
+| `src/pathfinder.hpp` | Dijkstra and A\* implementations |
+| `src/graph.hpp` | Graph structure loaded from JSON |
+| `src/renderer.hpp` | Raylib rendering, pan, zoom |
+| `src/map_loader.py` | Fetches OSM data and generates map files |
 
 ---
 
-## 🧠 To Do
+## 🧠 How It Works
 
-- ✅ Path drawing on map  
-- 🖱️ Click-to-select start and end nodes  
-- 📍 Animated path traversal  
-- 🔁 Add support for alternative pathfinding algorithms  
+1. `map_loader.py` fetches Jaipur's road network from OpenStreetMap using `osmnx`
+2. Roads are saved as a graph (`map_graph.json`) with nodes (intersections) and edges (roads with weights)
+3. The C++ program loads this graph and renders it using Raylib
+4. On click, the nearest node is selected as start/end
+5. Both Dijkstra and A\* run on the graph and results are displayed with stats
+
+---
+
+## 🔧 Tech Stack
+
+- **C++17** — Core algorithms and application logic
+- **Raylib** — Graphics, input, rendering
+- **Python + osmnx** — Map data fetching from OpenStreetMap
+- **nlohmann/json** — JSON parsing in C++
 
 ---
 
 ## 📜 License
 
 MIT — use freely with credit.
-
----
-
-## 🙏 Thanks To
-
-- [OpenStreetMap](https://www.openstreetmap.org/)
-- [osmnx](https://github.com/gboeing/osmnx)
-- [Raylib](https://www.raylib.com/)
-- [matplotlib](https://matplotlib.org/)
-- [Pillow (PIL)](https://pillow.readthedocs.io/)
